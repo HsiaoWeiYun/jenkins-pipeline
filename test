@@ -1,0 +1,129 @@
+pipeline{  //代表整條流水線
+   agent any  //劉流水線執行位置
+   
+   //環境變數
+//   environment{
+       
+//   }
+   
+   //pipeline選項, 也可放入stage內
+   options{
+       //只保留%d次的log與產出物
+       buildDiscarder(logRotator(numToKeepStr: '2'))
+       //從版控拉code下來時預設是放在工作目錄中, 這邊可以指定要放在工作目錄內的子資料夾
+       checkoutToSubdirectory('data')
+       //禁止同時執行
+       disableConcurrentBuilds()
+       
+       //每個stage都會在不同的容器內執行, 不是全擠在同個
+       //newContainerPerStage()
+       
+       //重試次數(總次數), 可放在stage區塊內
+       retry(2)
+       
+       //執行過長時間失敗
+       timeout(time: 1, unit: 'SECONDS')
+   }
+
+   stages{  //多個stage的容器
+      stage('test1'){  //代表流水線階段
+         steps{  //代表步驟
+         	println getReturnStringVal("victor")
+         	sayHello()  //此時括號不能省略
+         	
+         	testClosure({println "testClosure testClosure testClosure"})
+         	//另種寫法跟pipeline依一樣
+         	testClosure{
+         	    println "testClosure testClosure testClosure"
+         	}
+         	
+         	testClosure2("testClosure2 name", {println "testClosure2 testClosure2 testClosure2"})
+         	
+         	//另種寫法, 跟stage一樣
+         	testClosure2("testClosure2 name"){
+         	    println "testClosure2 testClosure2 testClosure2"
+         	}
+         	
+         	//測試abort用
+         	//sleep(6)
+         }
+      }
+      
+      stage('test2'){ 
+          steps{
+              script{  //腳本, 可寫groovy code
+                  def browsers = ['chrome', 'IE', 'firefox']
+                  for(int i = 0; i < browsers.size(); i++){
+                      println("Testing the ${browsers[i]} browser")
+                  }
+              }
+          }
+      }
+   }
+   
+   post{
+       
+       changed {
+           //上次狀態與當前狀態不同時就會執行
+           println "changed"
+       }
+       
+       fixed {
+           //上次狀態是失敗oe不穩定, 這次狀態是成功時執行
+           println "fixed"
+       }
+       
+       regression {
+           //上次狀態為成功, 這是狀態為失敗 不穩定 終止 時執行
+           println "regression"
+       }
+       
+       aborted {
+           //終止時執行
+           println "aborted"
+       }
+       
+       always {
+           //不論狀態都會執行
+           println "always"
+       }
+       
+       success {
+           //狀態成功執行
+           println "success"
+       }
+       
+       failure {
+           //狀態失敗執行
+           println "failure"
+       }
+   }
+   
+}
+//默認參數
+def sayHello(String name = "victor"){
+    println "hello ${name}"  //雙引號支援變數用法
+    println 'hello ${name}'  //單引號不支援變數用法
+    
+    //支援三引號 支援換行
+    println """hello ${name}
+            hello ${name} hello ${name} """
+    println '''hello ${name}
+            hello ${name} hello ${name} '''
+}
+//一般的reutrn
+def getReturnStringVal(String name){
+    return "Hello " + name
+}
+
+def testClosure(closure){
+    closure()
+}
+
+def testClosure2(String name, closure){
+    println name
+    closure()
+}
+
+
+
