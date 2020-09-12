@@ -1,0 +1,23 @@
+pipeline{
+   agent any
+   
+   tools{
+       maven 'Maven-3.6.3'
+   }
+   
+   stages{
+
+      stage('test command'){
+         steps{
+            sh "mvn -v"
+         }
+      }
+      
+      stage('printenv'){
+         steps{
+             echo "印出環境變數"
+            sh "printenv"
+         }
+      }
+   }
+}
