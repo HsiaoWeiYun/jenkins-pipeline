@@ -26,6 +26,13 @@ pipeline{  //代表整條流水線
    }
 
    stages{  //多個stage的容器
+
+      stage('clean ws'){
+          steps{
+              cleanWs()
+          }
+      }
+
       stage('test1'){  //代表流水線階段
          steps{  //代表步驟
          	println getReturnStringVal("victor")
@@ -59,6 +66,34 @@ pipeline{  //代表整條流水線
               }
           }
       }
+
+      stage('test3'){ 
+          steps{
+              sh 'ls -all'
+              
+              //指定工作目錄並創建目錄    
+              dir ('foo') {
+                  //寫檔
+                  writeFile(file:'test3.txt',text:'abc123456', encoding:'UTF8')
+              }
+              sh 'ls -all'
+              
+              script{
+                  //讀檔
+                  def content = readFile(file:'./foo/test3.txt', encoding:'UTF8')
+                  echo "/foo/test3.txt ==> ${content}"
+              }
+              
+              dir ('foo') {
+                  //刪除當前目錄
+                  deleteDir()
+              }
+              
+              sh 'ls -all'       
+          }
+      }
+
+
    }
    
    post{
