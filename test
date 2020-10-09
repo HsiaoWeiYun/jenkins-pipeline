@@ -1,11 +1,6 @@
 pipeline{  //代表整條流水線
    agent any  //劉流水線執行位置
-   
-   //環境變數
-//   environment{
-       
-//   }
-   
+
    //pipeline選項, 也可放入stage內
    options{
        //只保留%d次的log與產出物

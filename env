@@ -1,0 +1,35 @@
+pipeline{
+   agent any
+
+   environment{
+     testEnv1 = "test1"
+   }
+
+   stages{
+
+      stage('print default jenkins env'){
+            steps{
+               sh "printenv"
+            }
+       }
+
+      stage('test env'){
+
+          environment{
+              testEnv2 = "test2"
+          }
+
+         steps{
+             println "${testEnv1} and ${testEnv2} "
+             println "global env: ${env.global_env1}"
+         }
+      }
+
+      stage('print some env'){
+          steps{
+            println "${env.BUILD_NUMBER} on ${env.JENKINS_URL}"
+            println "$env.BUILD_NUMBER on $env.JENKINS_URL"
+          }
+      }
+   }
+}
